@@ -1,64 +1,80 @@
-# Terraform Provider Scaffolding (Terraform Plugin Framework)
+# Terraform Provider for Proton Pass
 
-_This template repository is built on the [Terraform Plugin Framework](https://github.com/hashicorp/terraform-plugin-framework). The template repository built on the [Terraform Plugin SDK](https://github.com/hashicorp/terraform-plugin-sdk) can be found at [terraform-provider-scaffolding](https://github.com/hashicorp/terraform-provider-scaffolding). See [Which SDK Should I Use?](https://developer.hashicorp.com/terraform/plugin/framework-benefits) in the Terraform documentation for additional information._
-
-This repository is a *template* for a [Terraform](https://www.terraform.io) provider. It is intended as a starting point for creating Terraform providers, containing:
-
-- A resource and a data source (`internal/provider/`),
-- Examples (`examples/`) and generated documentation (`docs/`),
-- Miscellaneous meta files.
-
-These files contain boilerplate code that you will need to edit to create your own Terraform provider. Tutorials for creating Terraform providers can be found on the [HashiCorp Developer](https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework) platform. _Terraform Plugin Framework specific guides are titled accordingly._
-
-Please see the [GitHub template repository documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) for how to create a new repository from this template on GitHub.
-
-Once you've written your provider, you'll want to [publish it on the Terraform Registry](https://developer.hashicorp.com/terraform/registry/providers/publishing) so that others can use it.
+Unofficial Terraform Provider to manage items and vaults via the Proton Pass CLI (`pass-cli`). 
 
 ## Requirements
 
-- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.0
-- [Go](https://golang.org/doc/install) >= 1.24
+- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.11 (Required for `write-only` attribute support)
+- [Go](https://golang.org/doc/install) >= 1.24 (For building the provider locally)
+- [pass-cli](https://github.com/ProtonMail/pass-cli) >= 1.0 (Must be installed and authenticated via `pass-cli login`)
 
-## Building The Provider
+## Installation
 
-1. Clone the repository
-1. Enter the repository directory
-1. Build the provider using the Go `install` command:
+This provider relies on the local environment having an authenticated active `pass-cli` session.
 
+1. Install the CLI: `pip install pass-cli`
+2. Authenticate: `pass-cli login`
+3. Verify session: `pass-cli test`
+
+To install the provider manually for local development:
 ```shell
-go install
+make install
 ```
 
-## Adding Dependencies
+## Example Usage
 
-This provider uses [Go modules](https://github.com/golang/go/wiki/Modules).
-Please see the Go documentation for the most up to date information about using Go modules.
+### Setting up the Provider
+```hcl
+terraform {
+  required_providers {
+    protonpass = {
+      source = "planeopscc/protonpass"
+    }
+  }
+}
 
-To add a new dependency `github.com/author/dependency` to your Terraform provider:
-
-```shell
-go get github.com/author/dependency
-go mod tidy
+provider "protonpass" {}
 ```
 
-Then commit the changes to `go.mod` and `go.sum`.
+### Creating Resources
+```hcl
+# Create a Vault
+resource "protonpass_vault" "my_vault" {
+  name = "My Secure Vault"
+}
 
-## Using the provider
+# Create a Login Item
+resource "protonpass_item_login" "my_login" {
+  share_id            = protonpass_vault.my_vault.share_id
+  title               = "GitHub Account"
+  username            = "my_user"
+  password_wo         = "super_secret_password"
+  password_wo_version = 1
+  urls                = ["https://github.com/login"]
+}
+```
 
-Fill this in for each provider
+### Rotating Passwords
+Values like `password_wo` inside the Login Item or `note_wo` in Note Items use the Terraform `>= 1.11` write-only attribute type. This means they are passed to Proton Pass but are **never stored in your local state**. To trigger a password rotation, simply update the `password_wo` field and increment `password_wo_version`.
+
+### Importing Existing Items
+Because items in Proton Pass require a context to lookup, you must provide both the Share ID (Vault ID) and the Item ID using a composite format (`share_id:item_id`). 
+
+```shell
+# Import a vault using its share_id
+terraform import protonpass_vault.mega_vault "share_id"
+
+# Import a login item using its composite share_id and item_id
+terraform import protonpass_item_login.full_login "share_id:item_id"
+```
 
 ## Developing the Provider
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (see [Requirements](#requirements) above).
-
-To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
-
+To compile the provider, run `make install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 To generate or update documentation, run `make generate`.
 
-In order to run the full suite of Acceptance tests, run `make testacc`.
-
-*Note:* Acceptance tests create real resources, and often cost money to run.
-
 ```shell
-make testacc
+make generate
+make lint
+make test
 ```

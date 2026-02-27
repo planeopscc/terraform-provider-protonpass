@@ -1,0 +1,27 @@
+{
+    "item": {
+        "id": "item-login-001",
+        "share_id": "share-abc-123",
+        "vault_id": "vault-abc-123",
+        "content": {
+            "title": "Database Credentials",
+            "note": "",
+            "item_uuid": "uuid-001",
+            "content": {
+                "Login": {
+                    "username": "admin",
+                    "password": "",
+                    "urls": [
+                        "https://db.example.com"
+                    ],
+                    "totp": ""
+                }
+            },
+            "extra_fields": []
+        },
+        "state": "Active",
+        "flags": [],
+        "create_time": "2025-01-15T10:00:00Z",
+        "modify_time": "2025-01-15T10:00:00Z"
+    }
+}

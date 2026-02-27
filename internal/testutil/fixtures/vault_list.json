@@ -1,0 +1,14 @@
+{
+    "vaults": [
+        {
+            "share_id": "share-abc-123",
+            "vault_id": "vault-abc-123",
+            "name": "Personal"
+        },
+        {
+            "share_id": "share-def-456",
+            "vault_id": "vault-def-456",
+            "name": "Work"
+        }
+    ]
+}

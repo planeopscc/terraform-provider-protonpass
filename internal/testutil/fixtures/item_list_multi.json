@@ -1,0 +1,92 @@
+{
+    "items": [
+        {
+            "id": "item-note-001",
+            "share_id": "share-abc-123",
+            "vault_id": "vault-abc-123",
+            "content": {
+                "title": "My Note",
+                "note": "",
+                "item_uuid": "n1",
+                "content": {},
+                "extra_fields": []
+            },
+            "state": "Active",
+            "flags": [],
+            "create_time": "2025-03-01T10:00:00Z",
+            "modify_time": "2025-03-01T10:00:00Z"
+        },
+        {
+            "id": "item-cc-002",
+            "share_id": "share-abc-123",
+            "vault_id": "vault-abc-123",
+            "content": {
+                "title": "My Visa",
+                "note": "",
+                "item_uuid": "c1",
+                "content": {
+                    "CreditCard": {
+                        "cardholder_name": "John Doe",
+                        "number": "",
+                        "cvv": "",
+                        "expiration_date": "2027-12",
+                        "pin": ""
+                    }
+                },
+                "extra_fields": []
+            },
+            "state": "Active",
+            "flags": [],
+            "create_time": "2025-03-01T11:00:00Z",
+            "modify_time": "2025-03-01T11:00:00Z"
+        },
+        {
+            "id": "item-wifi-003",
+            "share_id": "share-abc-123",
+            "vault_id": "vault-abc-123",
+            "content": {
+                "title": "Office WiFi",
+                "note": "",
+                "item_uuid": "w1",
+                "content": {},
+                "extra_fields": []
+            },
+            "state": "Active",
+            "flags": [],
+            "create_time": "2025-03-01T12:00:00Z",
+            "modify_time": "2025-03-01T12:00:00Z"
+        },
+        {
+            "id": "item-ssh-004",
+            "share_id": "share-abc-123",
+            "vault_id": "vault-abc-123",
+            "content": {
+                "title": "Deploy Key",
+                "note": "",
+                "item_uuid": "s1",
+                "content": {},
+                "extra_fields": []
+            },
+            "state": "Active",
+            "flags": [],
+            "create_time": "2025-03-01T13:00:00Z",
+            "modify_time": "2025-03-01T13:00:00Z"
+        },
+        {
+            "id": "item-id-005",
+            "share_id": "share-abc-123",
+            "vault_id": "vault-abc-123",
+            "content": {
+                "title": "My Identity",
+                "note": "",
+                "item_uuid": "i1",
+                "content": {},
+                "extra_fields": []
+            },
+            "state": "Active",
+            "flags": [],
+            "create_time": "2025-03-01T14:00:00Z",
+            "modify_time": "2025-03-01T14:00:00Z"
+        }
+    ]
+}

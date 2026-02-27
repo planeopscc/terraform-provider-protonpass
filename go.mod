@@ -1,4 +1,4 @@
-module github.com/hashicorp/terraform-provider-scaffolding-framework
+module github.com/planeopscc/terraform-provider-protonpass
 
 go 1.25.5
 
