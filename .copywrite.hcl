@@ -20,5 +20,8 @@ project {
 
     # GoReleaser tooling configuration
     ".goreleaser.yml",
+
+    # Local testing ground
+    "test-local/**",
   ]
 }

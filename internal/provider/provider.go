@@ -1,108 +1,126 @@
-// Copyright IBM Corp. 2021, 2025
+// Copyright (c) PlaneOpsCc
 // SPDX-License-Identifier: MPL-2.0
 
 package provider
 
 import (
 	"context"
-	"net/http"
+	"fmt"
+	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework/action"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
-	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+
+	"github.com/planeopscc/terraform-provider-protonpass/internal/passcli"
+	"github.com/planeopscc/terraform-provider-protonpass/internal/provider/datasources"
+	"github.com/planeopscc/terraform-provider-protonpass/internal/provider/resources"
 )
 
-// Ensure ScaffoldingProvider satisfies various provider interfaces.
-var _ provider.Provider = &ScaffoldingProvider{}
-var _ provider.ProviderWithFunctions = &ScaffoldingProvider{}
-var _ provider.ProviderWithEphemeralResources = &ScaffoldingProvider{}
-var _ provider.ProviderWithActions = &ScaffoldingProvider{}
+var _ provider.Provider = &ProtonPassProvider{}
 
-// ScaffoldingProvider defines the provider implementation.
-type ScaffoldingProvider struct {
-	// version is set to the provider version on release, "dev" when the
-	// provider is built and ran locally, and "test" when running acceptance
-	// testing.
+// ProtonPassProvider implements the Proton Pass Terraform provider.
+type ProtonPassProvider struct {
 	version string
 }
 
-// ScaffoldingProviderModel describes the provider data model.
-type ScaffoldingProviderModel struct {
-	Endpoint types.String `tfsdk:"endpoint"`
+// ProtonPassProviderModel describes the provider configuration.
+type ProtonPassProviderModel struct {
+	CLIPath types.String `tfsdk:"cli_path"`
+	Timeout types.Int64  `tfsdk:"timeout"`
 }
 
-func (p *ScaffoldingProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "scaffolding"
+func (p *ProtonPassProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "protonpass"
 	resp.Version = p.version
 }
 
-func (p *ScaffoldingProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *ProtonPassProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Terraform provider for Proton Pass. Manages vaults and items via the pass-cli.",
 		Attributes: map[string]schema.Attribute{
-			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "Example provider attribute",
+			"cli_path": schema.StringAttribute{
+				MarkdownDescription: "Path to the pass-cli binary. Default: 'pass-cli' (from PATH).",
+				Optional:            true,
+			},
+			"timeout": schema.Int64Attribute{
+				MarkdownDescription: "Timeout in seconds for CLI commands. Default: 30.",
 				Optional:            true,
 			},
 		},
 	}
 }
 
-func (p *ScaffoldingProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data ScaffoldingProviderModel
-
+func (p *ProtonPassProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	var data ProtonPassProviderModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Configuration values are now available.
-	// if data.Endpoint.IsNull() { /* ... */ }
+	cliPath := "pass-cli"
+	if !data.CLIPath.IsNull() && !data.CLIPath.IsUnknown() {
+		cliPath = data.CLIPath.ValueString()
+	}
 
-	// Example client configuration for data sources and resources
-	client := http.DefaultClient
+	timeout := 30 * time.Second
+	if !data.Timeout.IsNull() && !data.Timeout.IsUnknown() {
+		timeout = time.Duration(data.Timeout.ValueInt64()) * time.Second
+	}
+
+	tflog.Info(ctx, "configuring protonpass provider", map[string]interface{}{
+		"pass_cli_path": cliPath,
+		"timeout":       timeout.String(),
+	})
+
+	runner := passcli.NewExecRunner(cliPath, timeout)
+	client := passcli.NewClient(runner)
+
+	if err := client.HealthCheck(ctx); err != nil {
+		resp.Diagnostics.AddError(
+			"Proton Pass CLI Not Ready",
+			fmt.Sprintf("Could not verify pass-cli session. "+
+				"Ensure pass-cli is installed at %q and you are logged in (pass-cli login).\n\nError: %s", cliPath, err),
+		)
+		return
+	}
+
 	resp.DataSourceData = client
 	resp.ResourceData = client
 }
 
-func (p *ScaffoldingProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *ProtonPassProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewExampleResource,
+		resources.NewVaultResource,
+		resources.NewItemLoginResource,
+		resources.NewItemNoteResource,
+		resources.NewItemCreditCardResource,
+		resources.NewItemWiFiResource,
+		resources.NewItemIdentityResource,
+		resources.NewItemSSHKeyResource,
 	}
 }
 
-func (p *ScaffoldingProvider) EphemeralResources(ctx context.Context) []func() ephemeral.EphemeralResource {
-	return []func() ephemeral.EphemeralResource{
-		NewExampleEphemeralResource,
-	}
-}
-
-func (p *ScaffoldingProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *ProtonPassProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewExampleDataSource,
+		datasources.NewVaultsDataSource,
+		datasources.NewItemsDataSource,
+		datasources.NewItemLoginDataSource,
+		datasources.NewItemNoteDataSource,
+		datasources.NewItemCreditCardDataSource,
+		datasources.NewItemWifiDataSource,
+		datasources.NewItemSshKeyDataSource,
+		datasources.NewItemIdentityDataSource,
 	}
 }
 
-func (p *ScaffoldingProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{
-		NewExampleFunction,
-	}
-}
-
-func (p *ScaffoldingProvider) Actions(ctx context.Context) []func() action.Action {
-	return []func() action.Action{
-		NewExampleAction,
-	}
-}
-
+// New creates a new provider factory.
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {
-		return &ScaffoldingProvider{
+		return &ProtonPassProvider{
 			version: version,
 		}
 	}
