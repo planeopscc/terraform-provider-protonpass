@@ -22,6 +22,7 @@ type ItemsDataSource struct {
 
 type ItemsDataSourceModel struct {
 	ShareID types.String    `tfsdk:"share_id"`
+	Type    types.String    `tfsdk:"type"`
 	Items   []ItemDataModel `tfsdk:"items"`
 }
 
@@ -29,6 +30,7 @@ type ItemDataModel struct {
 	ItemID     types.String `tfsdk:"item_id"`
 	ShareID    types.String `tfsdk:"share_id"`
 	Title      types.String `tfsdk:"title"`
+	Type       types.String `tfsdk:"type"`
 	CreateTime types.String `tfsdk:"create_time"`
 	ModifyTime types.String `tfsdk:"modify_time"`
 }
@@ -49,6 +51,10 @@ func (d *ItemsDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				MarkdownDescription: "Share ID of the vault to list items from.",
 				Required:            true,
 			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: "Filter items by type (e.g., login, note, credit-card, wifi, identity, ssh-key).",
+				Optional:            true,
+			},
 			"items": schema.ListNestedAttribute{
 				MarkdownDescription: "List of items in the vault.",
 				Computed:            true,
@@ -57,6 +63,7 @@ func (d *ItemsDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 						"item_id":     schema.StringAttribute{Computed: true, MarkdownDescription: "Unique identifier of the item."},
 						"share_id":    schema.StringAttribute{Computed: true, MarkdownDescription: "Share ID of the vault."},
 						"title":       schema.StringAttribute{Computed: true, MarkdownDescription: "Title of the item."},
+						"type":        schema.StringAttribute{Computed: true, MarkdownDescription: "Type of the item."},
 						"create_time": schema.StringAttribute{Computed: true, MarkdownDescription: "Creation timestamp."},
 						"modify_time": schema.StringAttribute{Computed: true, MarkdownDescription: "Last modification timestamp."},
 					},
@@ -91,16 +98,24 @@ func (d *ItemsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		return
 	}
 
-	data.Items = make([]ItemDataModel, len(items))
-	for i, item := range items {
-		data.Items[i] = ItemDataModel{
+	filterType := data.Type.ValueString()
+
+	var result []ItemDataModel
+	for _, item := range items {
+		if filterType != "" && item.Type != filterType {
+			continue
+		}
+
+		result = append(result, ItemDataModel{
 			ItemID:     types.StringValue(item.ItemID),
 			ShareID:    types.StringValue(item.ShareID),
 			Title:      types.StringValue(item.Title),
+			Type:       types.StringValue(item.Type),
 			CreateTime: types.StringValue(item.CreateTime),
 			ModifyTime: types.StringValue(item.ModifyTime),
-		}
+		})
 	}
+	data.Items = result
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

@@ -95,12 +95,9 @@ func (p *ProtonPassProvider) Configure(ctx context.Context, req provider.Configu
 func (p *ProtonPassProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		resources.NewVaultResource,
-		resources.NewItemLoginResource,
-		resources.NewItemNoteResource,
-		resources.NewItemCreditCardResource,
-		resources.NewItemWiFiResource,
-		resources.NewItemIdentityResource,
-		resources.NewItemSSHKeyResource,
+		resources.NewItemResource,
+		resources.NewVaultMemberResource,
+		resources.NewAliasResource,
 	}
 }
 
@@ -108,12 +105,8 @@ func (p *ProtonPassProvider) DataSources(ctx context.Context) []func() datasourc
 	return []func() datasource.DataSource{
 		datasources.NewVaultsDataSource,
 		datasources.NewItemsDataSource,
-		datasources.NewItemLoginDataSource,
-		datasources.NewItemNoteDataSource,
-		datasources.NewItemCreditCardDataSource,
-		datasources.NewItemWifiDataSource,
-		datasources.NewItemSshKeyDataSource,
-		datasources.NewItemIdentityDataSource,
+		datasources.NewItemDataSource,
+		datasources.NewTotpDataSource,
 	}
 }
 
