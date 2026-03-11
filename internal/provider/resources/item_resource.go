@@ -335,10 +335,11 @@ func (r *ItemResource) Create(ctx context.Context, req resource.CreateRequest, r
 	// We reuse the update logic here or just rely on the next Read.
 	// To be safe and ensure all fields match config, let's trigger a field update.
 	fields := make(map[string]string)
-	if itemType == "login" {
+	switch itemType {
+	case "login":
 		fields["username"] = data.Username.ValueString()
 		fields["email"] = data.Email.ValueString()
-	} else if itemType == "wifi" {
+	case "wifi":
 		fields["ssid"] = data.SSID.ValueString()
 		fields["security"] = data.Security.ValueString()
 	}
