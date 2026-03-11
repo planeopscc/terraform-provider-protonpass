@@ -1,0 +1,18 @@
+[
+  {
+    "member_share_id": "member-001",
+    "email": "user@example.com",
+    "name": "User One",
+    "is_group_share": false,
+    "role": "admin",
+    "target_type": "user"
+  },
+  {
+    "member_share_id": "member-002",
+    "email": "readonly@example.com",
+    "name": "User Two",
+    "is_group_share": false,
+    "role": "readonly",
+    "target_type": "user"
+  }
+]

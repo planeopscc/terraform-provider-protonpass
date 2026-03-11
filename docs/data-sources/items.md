@@ -13,8 +13,15 @@ Lists all items in a Proton Pass vault.
 ## Example Usage
 
 ```terraform
-data "protonpass_items" "all" {
-  share_id = protonpass_vault.example.share_id
+# Retrieve all items of a specific type from a vault.
+
+data "protonpass_items" "all_logins" {
+  share_id = "share_id_here"
+  type     = "login"
+}
+
+output "login_titles" {
+  value = [for i in data.protonpass_items.all_logins.items : i.title]
 }
 ```
 
@@ -24,6 +31,10 @@ data "protonpass_items" "all" {
 ### Required
 
 - `share_id` (String) Share ID of the vault to list items from.
+
+### Optional
+
+- `type` (String) Filter items by type (e.g., login, note, credit-card, wifi, identity, ssh-key).
 
 ### Read-Only
 
@@ -39,3 +50,4 @@ Read-Only:
 - `modify_time` (String) Last modification timestamp.
 - `share_id` (String) Share ID of the vault.
 - `title` (String) Title of the item.
+- `type` (String) Type of the item.

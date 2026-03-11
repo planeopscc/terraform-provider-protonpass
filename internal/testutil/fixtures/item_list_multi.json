@@ -1,6 +1,22 @@
 {
     "items": [
         {
+            "id": "item-login-001",
+            "share_id": "share-abc-123",
+            "vault_id": "vault-abc-123",
+            "content": {
+                "title": "Database Credentials",
+                "note": "",
+                "item_uuid": "l1",
+                "content": {},
+                "extra_fields": []
+            },
+            "state": "Active",
+            "flags": [],
+            "create_time": "2025-03-01T09:00:00Z",
+            "modify_time": "2025-03-01T09:00:00Z"
+        },
+        {
             "id": "item-note-001",
             "share_id": "share-abc-123",
             "vault_id": "vault-abc-123",
