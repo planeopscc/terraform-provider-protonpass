@@ -149,8 +149,15 @@ func (r *AliasResource) Read(ctx context.Context, req resource.ReadRequest, resp
 			resp.State.RemoveResource(ctx)
 			return
 		}
-		// Aliases may return 422 if read too quickly. Log and retain current state.
+		// Aliases may return transient errors (e.g. 422) if read too quickly.
+		// Surface the error as a warning so the user is informed; retain current
+		// state so Terraform does not plan a spurious recreation.
 		tflog.Warn(ctx, "failed to read alias, retaining state", map[string]interface{}{"error": err.Error()})
+		resp.Diagnostics.AddWarning(
+			"Failed to read alias",
+			fmt.Sprintf("Could not refresh alias %q: %s. Current state is retained. "+
+				"Re-running plan will retry.", data.ID.ValueString(), err),
+		)
 		return
 	}
 
