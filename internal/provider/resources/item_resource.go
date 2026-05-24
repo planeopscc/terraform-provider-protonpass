@@ -408,6 +408,13 @@ func (r *ItemResource) mapItemToModel(ctx context.Context, item *passcli.ItemJSO
 	data.ItemID = types.StringValue(item.ItemID)
 	data.ShareID = types.StringValue(item.ShareID)
 
+	// Set type from the remote object so import works correctly.
+	// During a normal plan/apply data.Type is already known from config;
+	// after ImportState it is null, so we must derive it from the item.
+	if item.Type != "" {
+		data.Type = types.StringValue(item.Type)
+	}
+
 	itemType := data.Type.ValueString()
 	switch itemType {
 	case "login":
