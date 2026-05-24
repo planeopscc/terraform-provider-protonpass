@@ -42,3 +42,4 @@ test-local/*.key.pub
 test-local/.terraform/
 test-local/.terraform.lock.hcl
 test-local/terraform.tfstate*
+CLAUDE.local.md
