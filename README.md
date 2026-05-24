@@ -6,7 +6,7 @@ Unofficial Terraform Provider to manage items and vaults via the Proton Pass CLI
 
 - [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.11 (Required for `write-only` attribute support)
 - [Go](https://golang.org/doc/install) >= 1.25.5 (For building the provider locally)
-- [pass-cli](https://github.com/ProtonMail/pass-cli) >= 1.0 (Must be installed and authenticated via `pass-cli login`)
+- [pass-cli](https://github.com/protonpass/pass-cli) >= 1.5.2 (tested; v2.0.3+ recommended — see [pass-cli compatibility guide](docs/guides/pass-cli-compatibility.md))
 
 ## Installation
 
