@@ -415,8 +415,7 @@ func (c *Client) ReadItem(ctx context.Context, itemID, shareID string) (*ItemJSO
 func (c *Client) UpdateItem(ctx context.Context, itemID, shareID string, fields map[string]string) error {
 	args := []string{"item", "update",
 		"--share-id=" + shareID,
-		"--",
-		itemID,
+		"--item-id=" + itemID,
 	}
 	for k, v := range fields {
 		args = append(args, "--field", fmt.Sprintf("%s=%s", k, v))
