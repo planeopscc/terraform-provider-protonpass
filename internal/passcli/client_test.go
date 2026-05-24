@@ -101,6 +101,26 @@ func TestHealthCheck_Success(t *testing.T) {
 	}
 }
 
+func TestHealthCheck_SuccessEmptyStdout(t *testing.T) {
+	runner := testutil.NewFakeRunner(map[string]testutil.FakeResponse{
+		"test": {Stdout: []byte("")},
+	})
+	client := passcli.NewClient(runner)
+	if err := client.HealthCheck(t.Context()); err != nil {
+		t.Fatalf("HealthCheck failed with empty stdout: %v", err)
+	}
+}
+
+func TestHealthCheck_SuccessDifferentStdout(t *testing.T) {
+	runner := testutil.NewFakeRunner(map[string]testutil.FakeResponse{
+		"test": {Stdout: []byte("OK\n")},
+	})
+	client := passcli.NewClient(runner)
+	if err := client.HealthCheck(t.Context()); err != nil {
+		t.Fatalf("HealthCheck failed with different stdout: %v", err)
+	}
+}
+
 func TestHealthCheck_AuthError(t *testing.T) {
 	runner := testutil.NewFakeRunner(map[string]testutil.FakeResponse{
 		"test": {Err: &passcli.CLIError{ExitCode: 1, Stderr: "unauthorized"}},

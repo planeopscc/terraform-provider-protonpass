@@ -24,15 +24,10 @@ func NewClient(runner Runner) *Client {
 }
 
 // HealthCheck verifies that pass-cli is available and a session is active.
+// Success is determined solely by exit code; stdout content is not checked.
 func (c *Client) HealthCheck(ctx context.Context) error {
-	stdout, _, err := c.runner.Run(ctx, "test")
-	if err != nil {
-		return err
-	}
-	if !strings.Contains(string(stdout), "Connection successful") {
-		return fmt.Errorf("unexpected output from pass-cli test: %s", string(stdout))
-	}
-	return nil
+	_, _, err := c.runner.Run(ctx, "test")
+	return err
 }
 
 // --- Vault operations ---
