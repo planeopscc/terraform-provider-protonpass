@@ -155,12 +155,21 @@ func TestUpdateItem(t *testing.T) {
 	if err != nil {
 		t.Fatalf("UpdateItem returned error: %v", err)
 	}
+	hasItemID := false
 	hasField := false
 	for _, a := range runner.Calls[0].Args {
+		if a == "--item-id=item-001" {
+			hasItemID = true
+		}
 		if a == "--field" {
 			hasField = true
-			break
 		}
+		if a == "--" {
+			t.Errorf("unexpected positional separator '--' in args: %v", runner.Calls[0].Args)
+		}
+	}
+	if !hasItemID {
+		t.Errorf("expected --item-id=item-001 in args: %v", runner.Calls[0].Args)
 	}
 	if !hasField {
 		t.Errorf("expected --field flag in args: %v", runner.Calls[0].Args)
