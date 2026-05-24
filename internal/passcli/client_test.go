@@ -130,6 +130,21 @@ func TestReadItem(t *testing.T) {
 	}
 }
 
+func TestReadItem_Trashed(t *testing.T) {
+	fixture := loadFixture(t, "item_login_trashed.json")
+	runner := testutil.NewFakeRunner(map[string]testutil.FakeResponse{
+		"item view": {Stdout: fixture},
+	})
+	client := passcli.NewClient(runner)
+	item, err := client.ReadItem(t.Context(), "item-login-001", "share-abc-123")
+	if err != nil {
+		t.Fatalf("ReadItem returned error: %v", err)
+	}
+	if item.State != "Trashed" {
+		t.Errorf("expected state 'Trashed', got %q", item.State)
+	}
+}
+
 func TestUpdateItem(t *testing.T) {
 	runner := testutil.NewFakeRunner(map[string]testutil.FakeResponse{
 		"item update": {Stdout: []byte("")},
