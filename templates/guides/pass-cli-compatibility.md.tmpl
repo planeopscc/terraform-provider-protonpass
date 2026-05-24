@@ -130,7 +130,7 @@ Terraform runs.
     pass-cli login
     pass-cli test
   env:
-    PROTON_PASS_PERSONAL_ACCESS_TOKEN: ${{ secrets.PROTON_PASS_PAT }}
+    PROTON_PASS_PERSONAL_ACCESS_TOKEN: ${{ "{{" }} secrets.PROTON_PASS_PAT {{ "}}" }}
 
 - name: Terraform apply
   run: terraform apply -auto-approve
