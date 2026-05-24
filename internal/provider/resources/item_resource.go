@@ -345,7 +345,13 @@ func (r *ItemResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 	// ... add other fields as needed for a full sync ...
 	if len(fields) > 0 {
-		_ = r.client.UpdateItem(ctx, item.ItemID, shareID, fields)
+		if err := r.client.UpdateItem(ctx, item.ItemID, shareID, fields); err != nil {
+			resp.Diagnostics.AddWarning(
+				"Item created but field sync failed",
+				fmt.Sprintf("Item %q was created but post-creation field sync failed: %s. "+
+					"Re-running apply will correct this.", item.ItemID, err),
+			)
+		}
 	}
 
 	resp.Diagnostics.Append(r.mapItemToModel(ctx, item, &data)...)
