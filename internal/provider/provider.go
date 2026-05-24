@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
@@ -29,8 +31,9 @@ type ProtonPassProvider struct {
 
 // ProtonPassProviderModel describes the provider configuration.
 type ProtonPassProviderModel struct {
-	CLIPath types.String `tfsdk:"cli_path"`
-	Timeout types.Int64  `tfsdk:"timeout"`
+	CLIPath     types.String `tfsdk:"cli_path"`
+	Timeout     types.Int64  `tfsdk:"timeout"`
+	AgentReason types.String `tfsdk:"agent_reason"`
 }
 
 func (p *ProtonPassProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -49,6 +52,17 @@ func (p *ProtonPassProvider) Schema(ctx context.Context, req provider.SchemaRequ
 			"timeout": schema.Int64Attribute{
 				MarkdownDescription: "Timeout in seconds for CLI commands. Default: 30.",
 				Optional:            true,
+			},
+			"agent_reason": schema.StringAttribute{
+				MarkdownDescription: "Reason string passed as `PROTON_PASS_AGENT_REASON` to pass-cli. " +
+					"Required when using agent tokens (pass-cli v2.1.0+). " +
+					"Must be between 1 and 300 characters. " +
+					"If `PROTON_PASS_AGENT_REASON` is already set in the environment, " +
+					"this value takes priority.",
+				Optional: true,
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(1, 300),
+				},
 			},
 		},
 	}
@@ -76,7 +90,13 @@ func (p *ProtonPassProvider) Configure(ctx context.Context, req provider.Configu
 		"timeout":       timeout.String(),
 	})
 
-	runner := passcli.NewExecRunner(cliPath, timeout)
+	var runner passcli.Runner
+	if !data.AgentReason.IsNull() && !data.AgentReason.IsUnknown() {
+		runner = passcli.NewExecRunnerWithEnv(cliPath, timeout,
+			[]string{"PROTON_PASS_AGENT_REASON=" + data.AgentReason.ValueString()})
+	} else {
+		runner = passcli.NewExecRunner(cliPath, timeout)
+	}
 	client := passcli.NewClient(runner)
 
 	if err := client.HealthCheck(ctx); err != nil {

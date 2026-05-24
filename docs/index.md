@@ -20,5 +20,6 @@ provider "protonpass" {}
 
 ### Optional
 
+- `agent_reason` (String) Reason string passed as `PROTON_PASS_AGENT_REASON` to pass-cli. Required when using agent tokens (pass-cli v2.1.0+). Must be between 1 and 300 characters. If `PROTON_PASS_AGENT_REASON` is already set in the environment, this value takes priority.
 - `cli_path` (String) Path to the pass-cli binary. Default: 'pass-cli' (from PATH).
 - `timeout` (Number) Timeout in seconds for CLI commands. Default: 30.
