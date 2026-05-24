@@ -487,10 +487,12 @@ func (r *ItemResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
+	// A trashed item is treated as absent: Terraform will plan to re-create it.
+	// Create already handles restore-from-trash, so the full round-trip is preserved.
+	// Read must never mutate remote state (no untrash here).
 	if item.State == "Trashed" {
-		_ = r.client.RestoreItem(ctx, data.ItemID.ValueString(), data.ShareID.ValueString())
-		// Fetch again to get updated modify_time and state
-		item, _ = r.client.ReadItem(ctx, data.ItemID.ValueString(), data.ShareID.ValueString())
+		resp.State.RemoveResource(ctx)
+		return
 	}
 
 	resp.Diagnostics.Append(r.mapItemToModel(ctx, item, &data)...)
