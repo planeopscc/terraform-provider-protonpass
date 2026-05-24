@@ -1,10 +1,13 @@
 # Example 1: Create a Login Item
+# Use password_wo + password_wo_version to avoid storing the password in state.
+# Increment password_wo_version to trigger a password rotation.
 resource "protonpass_item" "example_login" {
   share_id            = protonpass_vault.example.share_id
   type                = "login"
   title               = "My Login"
   username            = "user"
   password_wo         = "secret"
+  password_wo_version = 1
   urls                = ["https://example.com"]
   destroy_permanently = true
 }
@@ -18,6 +21,8 @@ resource "protonpass_item" "example_note" {
 }
 
 # Example 3: Create a Credit Card Item
+# Note: number, verification_number, and pin are Sensitive but stored in state.
+# Treat your Terraform state file as a secret when using credit card items.
 resource "protonpass_item" "example_card" {
   share_id        = protonpass_vault.example.share_id
   type            = "credit-card"
@@ -29,13 +34,15 @@ resource "protonpass_item" "example_card" {
 }
 
 # Example 4: Create a WiFi Item
+# Use password_wo to avoid storing the WiFi password in state.
 resource "protonpass_item" "example_wifi" {
-  share_id = protonpass_vault.example.share_id
-  type     = "wifi"
-  title    = "Office Guest WiFi"
-  ssid     = "Guest-Net"
-  password = "guest-password"
-  security = "WPA2"
+  share_id            = protonpass_vault.example.share_id
+  type                = "wifi"
+  title               = "Office Guest WiFi"
+  ssid                = "Guest-Net"
+  password_wo         = "guest-password"
+  password_wo_version = 1
+  security            = "WPA2"
 }
 
 # Example 5: Generate an SSH Key
