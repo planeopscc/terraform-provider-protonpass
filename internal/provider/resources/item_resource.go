@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -18,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
@@ -116,9 +118,16 @@ func (r *ItemResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Manages a generic Proton Pass item (e.g. login, note, identity, etc).",
 		Attributes: map[string]schema.Attribute{
-			"item_id":             schema.StringAttribute{MarkdownDescription: "The unique identifier of the item.", Computed: true, PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
-			"share_id":            schema.StringAttribute{MarkdownDescription: "The share ID of the vault containing this item.", Required: true, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}},
-			"type":                schema.StringAttribute{MarkdownDescription: "The item type: `login`, `note`, `credit-card`, `wifi`, `ssh-key`, or `identity`.", Required: true, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}},
+			"item_id":  schema.StringAttribute{MarkdownDescription: "The unique identifier of the item.", Computed: true, PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
+			"share_id": schema.StringAttribute{MarkdownDescription: "The share ID of the vault containing this item.", Required: true, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}},
+			"type": schema.StringAttribute{
+				MarkdownDescription: "The item type: `login`, `note`, `credit-card`, `wifi`, `ssh-key`, or `identity`.",
+				Required:            true,
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},
+				Validators: []validator.String{
+					stringvalidator.OneOf("login", "note", "credit-card", "wifi", "ssh-key", "identity"),
+				},
+			},
 			"title":               schema.StringAttribute{MarkdownDescription: "The title of the item.", Required: true},
 			"destroy_permanently": schema.BoolAttribute{MarkdownDescription: "If true, the item is permanently deleted on destroy instead of being moved to trash.", Optional: true, Computed: true, Default: booldefault.StaticBool(false)},
 			"create_time":         schema.StringAttribute{MarkdownDescription: "Timestamp when the item was created.", Computed: true, PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
