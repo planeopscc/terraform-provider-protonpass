@@ -250,6 +250,12 @@ func (r *ItemResource) Create(ctx context.Context, req resource.CreateRequest, r
 			resp.Diagnostics.AddError("Failed to read restored item", err.Error())
 			return
 		}
+		resp.Diagnostics.AddWarning(
+			"Item restored from trash",
+			fmt.Sprintf("A trashed item with title %q (type %q, id %q) was found and restored instead of creating a new one. "+
+				"Its stored content may differ from your configuration. Re-running apply will sync any mismatched fields.",
+				title, itemType, existingID),
+		)
 	} else {
 		// 2. Normal Creation
 		switch itemType {
