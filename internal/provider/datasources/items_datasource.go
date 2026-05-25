@@ -100,7 +100,7 @@ func (d *ItemsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 
 	filterType := data.Type.ValueString()
 
-	var result []ItemDataModel
+	result := make([]ItemDataModel, 0, len(items))
 	for _, item := range items {
 		if filterType != "" && item.Type != filterType {
 			continue
