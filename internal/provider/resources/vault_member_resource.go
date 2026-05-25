@@ -133,7 +133,7 @@ func (r *VaultMemberResource) Read(ctx context.Context, req resource.ReadRequest
 
 	member, err := r.client.ReadVaultMember(ctx, data.ShareID.ValueString(), data.MemberShareID.ValueString(), "")
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
+		if passcli.IsNotFound(err) {
 			tflog.Warn(ctx, "vault_member not found, removing from state", map[string]interface{}{
 				"member_share_id": data.MemberShareID.ValueString(),
 			})

@@ -45,7 +45,7 @@ func buildAliasState(t *testing.T, r *AliasResource, id, shareID, prefix, alias 
 // the resource from state without adding diagnostics.
 func TestAliasRead_NotFound_RemovesFromState(t *testing.T) {
 	runner := testutil.NewFakeRunner(map[string]testutil.FakeResponse{
-		"item view": {Err: &passcli.CLIError{ExitCode: 1, Stderr: "Could not find item"}},
+		"item view": {Err: &passcli.CLIError{ExitCode: 1, Stderr: "item not found"}},
 	})
 	r := &AliasResource{client: passcli.NewClient(runner)}
 	state := buildAliasState(t, r, "alias-001", "share-001", "mypfx", "mypfx@passmail.net")

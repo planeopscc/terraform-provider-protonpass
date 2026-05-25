@@ -142,7 +142,7 @@ func (r *AliasResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 	item, err := r.client.ReadItem(ctx, data.ID.ValueString(), data.ShareID.ValueString())
 	if err != nil {
-		if strings.Contains(err.Error(), "Could not find item") {
+		if passcli.IsNotFound(err) {
 			tflog.Warn(ctx, "alias not found, removing from state", map[string]interface{}{
 				"id": data.ID.ValueString(),
 			})
@@ -195,7 +195,7 @@ func (r *AliasResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 	}
 
 	err := r.client.DeleteItem(ctx, data.ID.ValueString(), data.ShareID.ValueString(), data.DestroyPermanently.ValueBool())
-	if err != nil && !strings.Contains(err.Error(), "Could not find item") {
+	if err != nil && !passcli.IsNotFound(err) {
 		resp.Diagnostics.AddError("Failed to delete alias", err.Error())
 		return
 	}
