@@ -183,7 +183,7 @@ func (r *VaultMemberResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 
 	err := r.client.RemoveVaultMember(ctx, data.ShareID.ValueString(), data.MemberShareID.ValueString())
-	if err != nil {
+	if err != nil && !passcli.IsNotFound(err) {
 		resp.Diagnostics.AddError("Failed to remove vault member", err.Error())
 		return
 	}
