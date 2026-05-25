@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -22,28 +23,28 @@ type ItemDataSource struct {
 }
 
 type ItemDataSourceModel struct {
-	ItemID             types.String   `tfsdk:"item_id"`
-	ShareID            types.String   `tfsdk:"share_id"`
-	Name               types.String   `tfsdk:"name"`
-	Type               types.String   `tfsdk:"type"`
-	Title              types.String   `tfsdk:"title"`
-	Note               types.String   `tfsdk:"note"`
-	CreateTime         types.String   `tfsdk:"create_time"`
-	ModifyTime         types.String   `tfsdk:"modify_time"`
-	Username           types.String   `tfsdk:"username"`
-	Email              types.String   `tfsdk:"email"`
-	Password           types.String   `tfsdk:"password"`
-	URLs               []types.String `tfsdk:"urls"`
-	TOTPUri            types.String   `tfsdk:"totp_uri"`
-	CardholderName     types.String   `tfsdk:"cardholder_name"`
-	Number             types.String   `tfsdk:"number"`
-	VerificationNumber types.String   `tfsdk:"verification_number"`
-	ExpirationDate     types.String   `tfsdk:"expiration_date"`
-	PIN                types.String   `tfsdk:"pin"`
-	SSID               types.String   `tfsdk:"ssid"`
-	Security           types.String   `tfsdk:"security"`
-	PrivateKey         types.String   `tfsdk:"private_key"`
-	PublicKey          types.String   `tfsdk:"public_key"`
+	ItemID             types.String `tfsdk:"item_id"`
+	ShareID            types.String `tfsdk:"share_id"`
+	Name               types.String `tfsdk:"name"`
+	Type               types.String `tfsdk:"type"`
+	Title              types.String `tfsdk:"title"`
+	Note               types.String `tfsdk:"note"`
+	CreateTime         types.String `tfsdk:"create_time"`
+	ModifyTime         types.String `tfsdk:"modify_time"`
+	Username           types.String `tfsdk:"username"`
+	Email              types.String `tfsdk:"email"`
+	Password           types.String `tfsdk:"password"`
+	URLs               types.List   `tfsdk:"urls"`
+	TOTPUri            types.String `tfsdk:"totp_uri"`
+	CardholderName     types.String `tfsdk:"cardholder_name"`
+	Number             types.String `tfsdk:"number"`
+	VerificationNumber types.String `tfsdk:"verification_number"`
+	ExpirationDate     types.String `tfsdk:"expiration_date"`
+	PIN                types.String `tfsdk:"pin"`
+	SSID               types.String `tfsdk:"ssid"`
+	Security           types.String `tfsdk:"security"`
+	PrivateKey         types.String `tfsdk:"private_key"`
+	PublicKey          types.String `tfsdk:"public_key"`
 	// Identity fields omitted for brevity here unless necessary, let's include a few common ones
 	FullName    types.String `tfsdk:"full_name"`
 	PhoneNumber types.String `tfsdk:"phone_number"`
@@ -192,13 +193,15 @@ func (d *ItemDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	data.PhoneNumber = setString(item.PhoneNumber)
 
 	if len(item.URLs) > 0 {
-		var urlVals []types.String
-		for _, u := range item.URLs {
-			urlVals = append(urlVals, types.StringValue(u))
+		urlVals := make([]types.String, len(item.URLs))
+		for i, u := range item.URLs {
+			urlVals[i] = types.StringValue(u)
 		}
-		data.URLs = urlVals
+		l, d := types.ListValueFrom(ctx, types.StringType, urlVals)
+		resp.Diagnostics.Append(d...)
+		data.URLs = l
 	} else {
-		data.URLs = nil
+		data.URLs = types.ListValueMust(types.StringType, []attr.Value{})
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
