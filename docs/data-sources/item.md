@@ -61,24 +61,35 @@ output "identity_email" {
 
 ### Read-Only
 
+- `birthdate` (String) Birthdate for identity items.
 - `cardholder_name` (String) Cardholder name.
+- `city` (String) City for identity items.
+- `country_or_region` (String) Country or region for identity items.
 - `create_time` (String) Creation timestamp.
 - `email` (String) Email.
 - `expiration_date` (String) Expiration date.
-- `full_name` (String) Identity Full Name.
+- `first_name` (String) First name for identity items.
+- `full_name` (String) Full name for identity items.
+- `gender` (String) Gender for identity items.
 - `item_id` (String) Item ID.
+- `last_name` (String) Last name for identity items.
+- `middle_name` (String) Middle name for identity items.
 - `modify_time` (String) Last modification timestamp.
 - `note` (String) Note content.
 - `number` (String, Sensitive) Card number.
+- `organization` (String) Organization for identity items.
 - `password` (String, Sensitive) Password.
-- `phone_number` (String) Identity Phone Number.
+- `phone_number` (String) Phone number for identity items.
 - `pin` (String, Sensitive) PIN.
 - `private_key` (String, Sensitive) SSH Private Key.
 - `public_key` (String) SSH Public Key.
 - `security` (String) WiFi Security.
 - `ssid` (String) WiFi SSID.
+- `state_or_province` (String) State or province for identity items.
+- `street_address` (String) Street address for identity items.
 - `title` (String) Title of the item.
 - `totp_uri` (String, Sensitive) TOTP URI.
 - `urls` (List of String) URLs.
 - `username` (String) Username.
 - `verification_number` (String, Sensitive) Verification number (CVV).
+- `zip_or_postal_code` (String) ZIP or postal code for identity items.

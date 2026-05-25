@@ -45,9 +45,19 @@ type ItemDataSourceModel struct {
 	Security           types.String `tfsdk:"security"`
 	PrivateKey         types.String `tfsdk:"private_key"`
 	PublicKey          types.String `tfsdk:"public_key"`
-	// Identity fields omitted for brevity here unless necessary, let's include a few common ones
-	FullName    types.String `tfsdk:"full_name"`
-	PhoneNumber types.String `tfsdk:"phone_number"`
+	FullName           types.String `tfsdk:"full_name"`
+	PhoneNumber        types.String `tfsdk:"phone_number"`
+	FirstName          types.String `tfsdk:"first_name"`
+	MiddleName         types.String `tfsdk:"middle_name"`
+	LastName           types.String `tfsdk:"last_name"`
+	Birthdate          types.String `tfsdk:"birthdate"`
+	Gender             types.String `tfsdk:"gender"`
+	Organization       types.String `tfsdk:"organization"`
+	StreetAddress      types.String `tfsdk:"street_address"`
+	ZipOrPostalCode    types.String `tfsdk:"zip_or_postal_code"`
+	City               types.String `tfsdk:"city"`
+	StateOrProvince    types.String `tfsdk:"state_or_province"`
+	CountryOrRegion    types.String `tfsdk:"country_or_region"`
 }
 
 func NewItemDataSource() datasource.DataSource {
@@ -97,8 +107,19 @@ func (d *ItemDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 			"security":            schema.StringAttribute{Computed: true, MarkdownDescription: "WiFi Security."},
 			"private_key":         schema.StringAttribute{Computed: true, Sensitive: true, MarkdownDescription: "SSH Private Key."},
 			"public_key":          schema.StringAttribute{Computed: true, MarkdownDescription: "SSH Public Key."},
-			"full_name":           schema.StringAttribute{Computed: true, MarkdownDescription: "Identity Full Name."},
-			"phone_number":        schema.StringAttribute{Computed: true, MarkdownDescription: "Identity Phone Number."},
+			"full_name":           schema.StringAttribute{Computed: true, MarkdownDescription: "Full name for identity items."},
+			"phone_number":        schema.StringAttribute{Computed: true, MarkdownDescription: "Phone number for identity items."},
+			"first_name":          schema.StringAttribute{Computed: true, MarkdownDescription: "First name for identity items."},
+			"middle_name":         schema.StringAttribute{Computed: true, MarkdownDescription: "Middle name for identity items."},
+			"last_name":           schema.StringAttribute{Computed: true, MarkdownDescription: "Last name for identity items."},
+			"birthdate":           schema.StringAttribute{Computed: true, MarkdownDescription: "Birthdate for identity items."},
+			"gender":              schema.StringAttribute{Computed: true, MarkdownDescription: "Gender for identity items."},
+			"organization":        schema.StringAttribute{Computed: true, MarkdownDescription: "Organization for identity items."},
+			"street_address":      schema.StringAttribute{Computed: true, MarkdownDescription: "Street address for identity items."},
+			"zip_or_postal_code":  schema.StringAttribute{Computed: true, MarkdownDescription: "ZIP or postal code for identity items."},
+			"city":                schema.StringAttribute{Computed: true, MarkdownDescription: "City for identity items."},
+			"state_or_province":   schema.StringAttribute{Computed: true, MarkdownDescription: "State or province for identity items."},
+			"country_or_region":   schema.StringAttribute{Computed: true, MarkdownDescription: "Country or region for identity items."},
 		},
 	}
 }
@@ -191,6 +212,17 @@ func (d *ItemDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 	data.FullName = setString(item.FullName)
 	data.PhoneNumber = setString(item.PhoneNumber)
+	data.FirstName = setString(item.FirstName)
+	data.MiddleName = setString(item.MiddleName)
+	data.LastName = setString(item.LastName)
+	data.Birthdate = setString(item.Birthdate)
+	data.Gender = setString(item.Gender)
+	data.Organization = setString(item.Organization)
+	data.StreetAddress = setString(item.StreetAddress)
+	data.ZipOrPostalCode = setString(item.ZipOrPostalCode)
+	data.City = setString(item.City)
+	data.StateOrProvince = setString(item.StateOrProvince)
+	data.CountryOrRegion = setString(item.CountryOrRegion)
 
 	if len(item.URLs) > 0 {
 		urlVals := make([]types.String, len(item.URLs))
