@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/planeopscc/terraform-provider-protonpass/internal/passcli"
 )
@@ -214,7 +215,17 @@ func getURLs(ctx context.Context, data ItemResourceModel) []string {
 	return urls
 }
 
+// maskItemSensitiveFields registers log-level masking for all sensitive item
+// field keys so their values are never written to debug output.
+func maskItemSensitiveFields(ctx context.Context) context.Context {
+	return tflog.MaskFieldValuesWithFieldKeys(ctx,
+		"password", "note", "number", "verification_number",
+		"pin", "private_key", "ssn", "passport_number", "license_number",
+	)
+}
+
 func (r *ItemResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	ctx = maskItemSensitiveFields(ctx)
 	var data ItemResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -492,6 +503,7 @@ func (r *ItemResource) mapItemToModel(ctx context.Context, item *passcli.ItemJSO
 }
 
 func (r *ItemResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	ctx = maskItemSensitiveFields(ctx)
 	var data ItemResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -539,6 +551,7 @@ func getUpdatedSecret(ctx context.Context, req resource.UpdateRequest, planVal t
 }
 
 func (r *ItemResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	ctx = maskItemSensitiveFields(ctx)
 	var plan, state ItemResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -686,6 +699,7 @@ func (r *ItemResource) Update(ctx context.Context, req resource.UpdateRequest, r
 }
 
 func (r *ItemResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	ctx = maskItemSensitiveFields(ctx)
 	var data ItemResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
