@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -117,7 +118,7 @@ func (r *ItemResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 			"share_id":            schema.StringAttribute{MarkdownDescription: "The share ID of the vault containing this item.", Required: true, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}},
 			"type":                schema.StringAttribute{MarkdownDescription: "The item type: `login`, `note`, `credit-card`, `wifi`, `ssh-key`, or `identity`.", Required: true, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}},
 			"title":               schema.StringAttribute{MarkdownDescription: "The title of the item.", Required: true},
-			"destroy_permanently": schema.BoolAttribute{MarkdownDescription: "If true, the item is permanently deleted on destroy instead of being moved to trash.", Optional: true},
+			"destroy_permanently": schema.BoolAttribute{MarkdownDescription: "If true, the item is permanently deleted on destroy instead of being moved to trash.", Optional: true, Computed: true, Default: booldefault.StaticBool(false)},
 			"create_time":         schema.StringAttribute{MarkdownDescription: "Timestamp when the item was created.", Computed: true, PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
 			"modify_time":         schema.StringAttribute{MarkdownDescription: "Timestamp when the item was last modified.", Computed: true},
 
@@ -146,7 +147,7 @@ func (r *ItemResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 			"public_key":  schema.StringAttribute{MarkdownDescription: "Public key for SSH key items.", Optional: true, Computed: true, PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
 			"key_type":    schema.StringAttribute{MarkdownDescription: "Key type for SSH key generation (e.g. `ed25519`).", Optional: true, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}},
 			"comment":     schema.StringAttribute{MarkdownDescription: "Comment for SSH key generation.", Optional: true, PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()}},
-			"generate":    schema.BoolAttribute{MarkdownDescription: "If true, generates a new SSH key pair.", Optional: true},
+			"generate":    schema.BoolAttribute{MarkdownDescription: "If true, generates a new SSH key pair.", Optional: true, Computed: true, Default: booldefault.StaticBool(false)},
 
 			"full_name":                  schema.StringAttribute{MarkdownDescription: "Full name for identity items.", Optional: true, Computed: true, PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
 			"phone_number":               schema.StringAttribute{MarkdownDescription: "Phone number for identity items.", Optional: true, Computed: true, PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
